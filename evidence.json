@@ -1,0 +1,41 @@
+{
+  "summary": "x402-balance is a zero-dependency Python CLI that checks and watches any EVM address for incoming USDC via a plain JSON-RPC eth_call to public Base/Ethereum RPCs, with cron-friendly exit codes (0=paid, 3=zero, 1=error), --watch polling, --json pipeline output, and built-in USDC contracts for Base mainnet, Base Sepolia and Ethereum mainnet. Live-verified 2026-10-02: reads 51951.298220 USDC for 0x28C6c06298d514Db089934071355E5743bf21d60 on Ethereum mainnet at block 0x18e5bbb, and 0.000000 USDC for the author's Base address 0x3906E8C9551F26581D23411c9Db817ec9a724D5C at Base mainnet block 0x31ad686, using only Python 3 stdlib (urllib), no web3.py and no API keys.",
+  "tool": "x402-balance",
+  "version": "1.0.0",
+  "author": "AmirDiaz",
+  "repo": "https://github.com/AmirDiaz/x402-balance",
+  "verified_at": "2026-10-02T19:45:25Z",
+  "networks": {
+    "base": {
+      "rpc": "https://mainnet.base.org",
+      "usdc_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "verification_block": "0x31ad686",
+      "test_address": "0x3906E8C9551F26581D23411c9Db817ec9a724D5C",
+      "observed_balance": "0.000000"
+    },
+    "ethereum": {
+      "rpc": "https://eth.drpc.org",
+      "usdc_contract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "verification_block": "0x18e5bbb",
+      "test_address": "0x28C6c06298d514Db089934071355E5743bf21d60",
+      "observed_balance": "51951.298220"
+    },
+    "sepolia": {
+      "rpc": "https://sepolia.base.org",
+      "usdc_contract": "0x036CbD53842c5426634e7929541EC2318f3dCF7e",
+      "test_address": "0x3906E8C9551F26581D23411c9Db817ec9a724D5C",
+      "observed_balance": "0.000000"
+    }
+  },
+  "tests": [
+    {"name": "one-shot zero balance exits 3", "passed": true, "command": "python3 x402_balance.py 0x3906E8C9551F26581D23411c9Db817ec9a724D5C"},
+    {"name": "one-shot nonzero balance exits 0", "passed": true, "command": "python3 x402_balance.py 0x28C6c06298d514Db089934071355E5743bf21d60 --network ethereum"},
+    {"name": "json mode emits single parseable object", "passed": true, "command": "python3 x402_balance.py 0x3906E8C9551F26581D23411c9Db817ec9a724D5C --json"},
+    {"name": "watch mode max-polls gives up with exit 3", "passed": true, "command": "python3 x402_balance.py 0x3906E8C9551F26581D23411c9Db817ec9a724D5C --watch --interval 2 --max-polls 2"},
+    {"name": "sepolia network preset resolves and answers", "passed": true, "command": "python3 x402_balance.py 0x3906E8C9551F26581D23411c9Db817ec9a724D5C --network sepolia --json"},
+    {"name": "invalid address rejected with exit 1", "passed": true, "command": "python3 x402_balance.py 0x123"}
+  ],
+  "dependencies": ["python3 (>=3.8) stdlib only"],
+  "lines_of_code": 178,
+  "api_surface": ["eth_call balanceOf(address)", "eth_blockNumber"]
+}
